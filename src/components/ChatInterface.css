@@ -1,0 +1,27 @@
+/* WhatsApp-like ChatInterface custom styles */
+
+.chat-bg {
+  background: #ece5dd;
+}
+.analysis-panel {
+  min-width: 200px;
+}
+.user-list-panel {
+  min-width: 200px;
+}
+.chat-area {
+  background: #f7f7f7;
+}
+.chat-header {
+  background: #075e54 !important;
+  color: #fff !important;
+}
+.chat-messages {
+  background: #ece5dd;
+}
+.chat-input {
+  background: #f0f0f0;
+}
+.user-list-item:hover {
+  background: #e8f5e9 !important;
+}
