@@ -190,6 +190,17 @@ const ChatInterface: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'token') {
+        // Token changed in another tab
+        window.location.reload(); // Or call logout()
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   // Always return JSX - handle loading and error states
   if (loading) {
     return (
@@ -214,6 +225,8 @@ const ChatInterface: React.FC = () => {
       </div>
     );
   }
+
+  const filteredUsers = users; // No filter
 
   return (
     <div className="container-fluid chat-bg vh-100">
@@ -310,8 +323,7 @@ const ChatInterface: React.FC = () => {
             <h5 className="mb-0">Users</h5>
           </div>
           <div className="flex-grow-1 overflow-auto">
-            {users
-              .filter(user => getUserId(user) !== userId) // Hide current user from list
+            {filteredUsers
               .map(user => (
                 <div
                   key={getUserId(user)}
