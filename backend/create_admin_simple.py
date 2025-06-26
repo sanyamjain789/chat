@@ -4,9 +4,9 @@ import json
 def create_admin():
     # Admin user data
     admin_data = {
-        "email": "admin@example.com",
-        "username": "Admin",
-        "password": "admin123",
+        "email": "superadmin@gmail.com",
+        "username": "superadmin",
+        "password": "admin123@",
         "role": "admin"
     }
 

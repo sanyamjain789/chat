@@ -3,8 +3,8 @@ import json
 
 def test_admin_login():
     login_data = {
-        "email": "admin@example.com",
-        "password": "admin123"
+        "email": "superadmin@gmail.com",
+        "password": "admin123@"
     }
 
     try:

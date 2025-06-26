@@ -37,8 +37,8 @@ def test_all_users():
     # Test users
     test_users = [
         {
-            "email": "admin@example.com",
-            "password": "admin123",
+            "email": "superadmin@gmail.com",
+            "password": "admin123@",
             "role": "admin"
         },
         {

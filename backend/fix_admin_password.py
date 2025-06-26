@@ -12,8 +12,8 @@ async def fix_admin_password():
     users_collection = db.users
 
     # Admin user data
-    admin_email = "admin@example.com"
-    admin_password = "admin123"
+    admin_email = "superadmin@gmail.com"
+    admin_password = "admin123@"
 
     # Check if admin exists
     existing_admin = await users_collection.find_one({"email": admin_email})

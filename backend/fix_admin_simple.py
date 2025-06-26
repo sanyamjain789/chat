@@ -11,7 +11,7 @@ def delete_and_recreate_admin():
             users = response.json()
             admin_user = None
             for user in users:
-                if user['email'] == 'admin@example.com':
+                if user['email'] == 'superadmin@gmail.com':
                     admin_user = user
                     break
 
@@ -27,9 +27,9 @@ def delete_and_recreate_admin():
 
     # Create a new admin user with proper password
     admin_data = {
-        "email": "admin@example.com",
+        "email": "superadmin@gmail.com",
         "username": "Admin",
-        "password": "admin123",
+        "password": "admin123@",
         "role": "admin"
     }
 
@@ -58,8 +58,8 @@ def delete_and_recreate_admin():
 
 def test_admin_login():
     login_data = {
-        "email": "admin@example.com",
-        "password": "admin123"
+        "email": "superadmin@gmail.com",
+        "password": "admin123@"
     }
 
     try:

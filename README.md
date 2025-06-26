@@ -144,3 +144,29 @@ uvicorn main:app --reload
 3. Commit your changes
 4. Push to the branch
 5. Create a new Pull Request
+
+## Running the User Creation Script (First Time Setup)
+
+To create the initial admin user in your database, run the following command from your project root:
+
+### If your script is in TypeScript (`createUser.ts`):
+
+```
+npx ts-node src/scripts/createUser.ts
+```
+
+If you have `ts-node` installed globally, you can use:
+```
+ts-node src/scripts/createUser.ts
+```
+
+### If your script is in JavaScript (`createUser.js`):
+
+```
+node src/scripts/createUser.js
+```
+
+**Note:**
+- Make sure MongoDB is running before you run the script.
+- This will create the initial admin user (e.g., `superadmin@gmail.com` / `admin123@`).
+- If you get any errors, check your Node.js version and dependencies.

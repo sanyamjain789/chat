@@ -10,8 +10,8 @@ async def reset_admin():
     users_collection = db.users
 
     # Admin credentials
-    admin_email = "admin@example.com"
-    admin_password = "Admin@123"
+    admin_email = "superadmin@gmail.com"
+    admin_password = "admin123@"
 
     # Delete existing admin user
     result = await users_collection.delete_one({"email": admin_email})

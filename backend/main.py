@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, status, Body, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Depends, status, Body, WebSocket, WebSocketDisconnect, Path, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -94,6 +94,9 @@ class AdminStats(BaseModel):
     active_users: int
     messages_today: int
     average_response_time: float
+
+class PasswordChangeRequest(BaseModel):
+    new_password: str
 
 # Helper functions
 def create_access_token(data: dict, expires_delta: timedelta = None):
@@ -222,22 +225,30 @@ async def create_customer(user: User, current_user: dict = Depends(get_current_u
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/api/admin/users")
-async def get_users(current_user: dict = Depends(get_current_user)):
+async def get_users(
+    current_user: dict = Depends(get_current_user),
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100)
+):
     try:
         if current_user.get("role") != "admin":
             raise HTTPException(status_code=403, detail="Admin access required")
 
+        total = await users_collection.count_documents({"role": "customer"})
+        skip = (page - 1) * limit
         users = []
-        async for user in users_collection.find({"role": "customer"}):
+        cursor = users_collection.find({"role": "customer"}).skip(skip).limit(limit)
+        async for user in cursor:
             users.append({
                 "_id": str(user["_id"]),
                 "email": user["email"],
                 "username": user.get("username"),
                 "created_at": user.get("created_at"),
                 "last_seen": user.get("last_seen"),
-                "is_online": user.get("is_online", False)
+                "is_online": user.get("is_online", False),
+                "role": user.get('role')
             })
-        return users
+        return {"users": users, "total": total}
     except Exception as e:
         logger.error(f"Get users error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -277,8 +288,24 @@ async def get_admin_stats(current_user: dict = Depends(get_current_user)):
         logger.error(f"Get stats error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+@app.delete("/api/admin/users/{user_id}")
+async def delete_user(
+    user_id: str = Path(..., description="The ID of the user to delete"),
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    result = await users_collection.delete_one({"_id": ObjectId(user_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"detail": "User deleted"}
+
 @app.post("/api/users/change-password")
-async def change_password(new_password: str, current_user: dict = Depends(get_current_user)):
+async def change_password(
+    data: PasswordChangeRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    new_password = data.new_password
     try:
         hashed_password = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt())
         await users_collection.update_one(
@@ -533,3 +560,28 @@ async def general_exception_handler(request, exc):
         status_code=500,
         content={"detail": "Internal server error"}
     )
+
+@app.get("/api/analytics/total-messages")
+async def total_messages(current_user: dict = Depends(get_current_user)):
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    count = await messages_collection.count_documents({})
+    return {"total_messages": count}
+
+@app.get("/api/analytics/messages-per-user")
+async def messages_per_user(current_user: dict = Depends(get_current_user)):
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    pipeline = [
+        {"$group": {"_id": "$sender_id", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}}
+    ]
+    results = await messages_collection.aggregate(pipeline).to_list(length=100)
+    # Get user emails/usernames for display
+    user_map = {}
+    async for user in users_collection.find({}):
+        user_map[str(user["_id"])] = user.get("username") or user.get("email")
+    return [
+        {"user": user_map.get(item["_id"], item["_id"]), "count": item["count"]}
+        for item in results
+    ]

@@ -10,8 +10,8 @@ async def init_admin():
     users_collection = db.users
 
     # Admin credentials
-    admin_email = "admin@example.com"
-    admin_password = "admin1234"  # You can change this password
+    admin_email = "superadmin@gmail.com"
+    admin_password = "admin123@"  # You can change this password
 
     # Check if admin already exists
     admin = await users_collection.find_one({"email": admin_email})

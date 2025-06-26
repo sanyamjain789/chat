@@ -12,8 +12,8 @@ async def create_admin():
     users_collection = db.users
 
     # Admin user data
-    admin_email = "admin@example.com"
-    admin_password = "admin123"
+    admin_email = "superadmin@gmail.com"
+    admin_password = "admin123@"
     admin_username = "Admin"
 
     # Check if admin already exists
